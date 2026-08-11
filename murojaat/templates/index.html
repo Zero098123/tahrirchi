@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Murojaat yo'naltiruvchi</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    color: #1a1a2e;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    margin-top: 0.4rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 640px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  .card + .card { margin-top: 1.25rem; }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 130px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #1a1a2e;
+    resize: vertical;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  textarea:focus { border-color: #2563eb; }
+
+  textarea::placeholder { color: #9ca3af; }
+
+  button[type="submit"] {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.85rem;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button[type="submit"]:hover  { background: #2563eb; }
+  button[type="submit"]:active { transform: scale(0.98); }
+
+  /* Result section */
+  .result-heading {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .winner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .winner-icon {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .winner-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e40af;
+  }
+
+  .winner-sub {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  /* Probability bars */
+  .prob-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .prob-row { display: flex; align-items: center; gap: 0.75rem; }
+
+  .prob-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+
+  .prob-label {
+    font-size: 0.88rem;
+    color: #374151;
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-wrap {
+    flex: 1;
+    background: #f3f4f6;
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: #2563eb;
+    transition: width 0.5s ease;
+  }
+
+  .bar-fill.top { background: #1a1a2e; }
+
+  .prob-pct {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #6b7280;
+    width: 3rem;
+    text-align: right;
+  }
+
+  /* Original text preview */
+  .original-text {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border-left: 3px solid #e5e7eb;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .keyword-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .chip {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    border-radius: 99px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .problem-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .problem-name {
+    font-weight: 600;
+    color: #166534;
+    font-size: 0.95rem;
+  }
+
+  .problem-conf {
+    font-size: 0.82rem;
+    color: #16a34a;
+    font-weight: 500;
+  }
+
+  /* Sidebar bodies list */
+  .bodies-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .body-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f3f4f6;
+    border-radius: 99px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.82rem;
+    color: #374151;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🇺🇿 Murojaat yo'naltiruvchi</h1>
+  <p>Murojaatingizni kiriting — tegishli davlat organi aniqlanadi</p>
+</header>
+
+<div class="card">
+  <form method="POST" action="/predict">
+    <label for="appeal_text">Murojaatingiz matni</label>
+    <textarea
+      id="appeal_text"
+      name="appeal_text"
+      placeholder="Masalan: Pasportimni yo'qotdim, yangi olish uchun qanday murojaat qilaman?..."
+      required
+    >{{ original_text or '' }}</textarea>
+    <button type="submit">Aniqlash →</button>
+  </form>
+</div>
+
+{% if prediction %}
+<div class="card">
+  <p class="result-heading">Tavsiya etilgan organ{% if recommended_organs|length > 1 %}lar{% endif %}</p>
+  
+  {% for organ in recommended_organs %}
+  <div class="winner"{% if not loop.first %} style="margin-top: 0.75rem;"{% endif %}>
+    <span class="winner-icon">{{ organ.label.icon }}</span>
+    <div>
+      <div class="winner-name">{{ organ.label.name }}</div>
+      <div class="winner-sub">
+        {% if loop.first %}
+          Eng yuqori ehtimollik bilan mos keladi
+        {% else %}
+          Muqobil organ — yuqori ehtimollik bilan mos keladi
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <p class="result-heading">Barcha organlar bo'yicha ehtimollik</p>
+  <div class="prob-list">
+    {% for item in probabilities %}
+    <div class="prob-row">
+      <span class="prob-icon">{{ item.label.icon }}</span>
+      <span class="prob-label">{{ item.label.name }}</span>
+      <div class="bar-wrap">
+        <div class="bar-fill {% if loop.first %}top{% endif %}"
+             style="width: {{ item.prob }}%"></div>
+      </div>
+      <span class="prob-pct">{{ item.prob }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="original-text">{{ original_text }}</div>
+
+  {% if keywords %}
+  <div style="margin-top: 1.5rem;">
+    <p class="result-heading">Kalit so'zlar</p>
+    <div class="keyword-chips">
+      {% for kw in keywords %}
+      <span class="chip">{{ kw }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if detected_categories %}
+  <div style="margin-top: 1.25rem;">
+    <p class="result-heading">Aniqlangan muammo turlari</p>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+      {% for cat in detected_categories %}
+      <div class="problem-box" style="{% if cat.name == primary_problem %}background: #f0fdfa; border-color: #99f6e4;{% endif %}">
+        <span class="problem-name" style="{% if cat.name == primary_problem %}color: #115e59; font-weight: 700;{% endif %}">
+          {{ cat.name }} {% if cat.name == primary_problem %}(Asosiy yo'nalish){% endif %}
+        </span>
+        <span class="problem-conf">{{ cat.confidence }}% moslik</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <p class="result-heading">Qamrab olingan organlar</p>
+  <div class="bodies-grid">
+    {% for key, val in labels.items() %}
+    <span class="body-tag">{{ val.icon }} {{ val.name }}</span>
+    {% endfor %}
+  </div>
+</div>
+
+</body>
+</html>
